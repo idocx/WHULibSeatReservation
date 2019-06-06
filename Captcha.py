@@ -32,5 +32,3 @@ class Id_Captcha:
 
     def get_pos(self):
         return self.pos
-
-
