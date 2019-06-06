@@ -51,7 +51,7 @@ def get_reserve_date():
     time_in_sec = time.time()
     hour, minute = time.localtime(time_in_sec)[3:5]
 
-    if (hour * 60 + minute) >= 1365:  # 如果时间超过22:45，则对当前日期自动加一，自动预约第二天的座位（非常智能）
+    if (hour * 60 + minute) > 1350:  # 如果时间超过22:30，则对当前日期自动加一，自动预约第二天的座位（非常智能）
         time_in_sec += 86400
 
     exact_time = time.localtime(time_in_sec)
@@ -304,8 +304,8 @@ class WHUSeatRev:
 if __name__ == "__main__":
     count = 1
     is_success = 0
+    s = WHUSeatRev()
     while not is_success:
-        s = WHUSeatRev()
         seat_list = s.free_search()
         while seat_list is None:
             print("【第{0}次搜索】目前没有空闲位置".format(count))
@@ -314,6 +314,6 @@ if __name__ == "__main__":
             count += 1
 
         print("【第{0}次搜索】发现空闲位置，尝试预约".format(count))
-        time.sleep(5)
+        time.sleep(3)
 
         is_success = s.rev_seat(seat_list)
