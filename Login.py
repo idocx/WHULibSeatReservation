@@ -307,9 +307,9 @@ if __name__ == "__main__":
     s = WHUSeatRev()
     while not is_success:
         seat_list = s.free_search()
-        while seat_list is None:
+        while not seat_list:
             print("【第{0}次搜索】目前没有空闲位置".format(count))
-            time.sleep(10)
+            time.sleep(8+random.randint(0, 4))
             seat_list = s.free_search()
             count += 1
 
