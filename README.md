@@ -1,7 +1,7 @@
 # WHULibSeatReservation
 武汉大学图书馆座位预约脚本
 ## Python版本
-这个程序在Python 3.6.5环境下测试可行，应该是Python3.4+都可以
+这个程序在Python 3.6.5环境下测试可行，应该是Python3+都可以
 
 这个程序就用了pillow这个第三方库，别的都是Python的原生模块
 
