@@ -272,14 +272,14 @@ class WHUSeatRev:
 
         if re.search(r'(?<=状&nbsp;&nbsp;&nbsp;&nbsp;态 ： </em>).+?(?=</dd>)', response).group() != "预约":
             print("------预约失败------")
-            return 0
+            return False
 
         location = re.search(r'(?<=<em>位&nbsp;&nbsp;&nbsp;&nbsp;置 ： </em>).+?(?=</dd>)', response).group()
         print("\n"
               "------预约成功------\n",
               "位置：{0}\n".format(location),
               "时间：{0}~{1}".format(self.config["starttime"], self.config["endtime"]))
-        return 1
+        return True
 
 
 if __name__ == "__main__":
