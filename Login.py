@@ -86,12 +86,12 @@ class WHUSeatRev:
             "Accept-Encoding": "gzip, deflate, br",
             "Cookie": "_ga=GA1.3.1294194637.1547733807"
         }
-        #self.headers["Cookie"] += ";" + self.get_jsessionid()  # 获取cookie，并且写入头文件
-        #self.synchronizer_token = self.get_synchronizer_token()  # 获取token，这个在登陆的时候要用
+        self.headers["Cookie"] += ";" + self.get_jsessionid()  # 获取cookie，并且写入头文件
+        self.synchronizer_token = self.get_synchronizer_token()  # 获取token，这个在登陆的时候要用
         self.authid = self.check_captcha()  # 识别正确验证码后，系统会返回一个token，表明你已经验证成功了
-        #self.config = self.load_config("config.json", "room_code.json")
-        #self.reserve_date = get_reserve_date()
-        #self.login()
+        self.config = self.load_config("config.json", "room_code.json")
+        self.reserve_date = get_reserve_date()
+        self.login()
 
     @staticmethod
     def load_config(config_path="config.json", room_code_path="room_code.json"):
