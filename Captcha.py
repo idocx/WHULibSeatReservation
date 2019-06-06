@@ -28,7 +28,7 @@ class Id_Captcha:
             {"x": x, "y": y}
         )
 
-        # 自己关掉，显得智慧
+        # 自己关掉，显得很智能
         if len(self.pos) == 3:
             self.app.destroy()
 
