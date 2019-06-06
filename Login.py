@@ -1,4 +1,4 @@
-﻿from urllib import request, parse
+from urllib import request, parse
 import random
 from io import BytesIO
 import base64
