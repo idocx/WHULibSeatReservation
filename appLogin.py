@@ -4,7 +4,7 @@
 #       个人网站：https://www.chemhy.design                  #
 #############################################################
 
-# 网页端的登陆代码
+# 自习助手APP端组件
 from urllib import request, parse
 import ssl
 import json
