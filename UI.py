@@ -1,3 +1,10 @@
+#############################################################
+#                        作者：我.doc                        #
+# Github地址：https://github.com/idocx/WHULibSeatReservation #
+#       个人网站：https://www.chemhy.design                  #
+#############################################################
+
+# 插件的用户界面
 import tkinter as tk
 from tkinter import ttk
 import json
