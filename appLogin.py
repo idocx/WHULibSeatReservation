@@ -1,3 +1,10 @@
+#############################################################
+#                        作者：我.doc                        #
+# Github地址：https://github.com/idocx/WHULibSeatReservation #
+#       个人网站：https://www.chemhy.design                  #
+#############################################################
+
+# 网页端的登陆代码
 from urllib import request, parse
 import ssl
 import json
