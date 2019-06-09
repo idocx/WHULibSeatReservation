@@ -1,3 +1,10 @@
+#############################################################
+#                        作者：我.doc                        #
+# Github地址：https://github.com/idocx/WHULibSeatReservation #
+#       个人网站：https://www.chemhy.design                  #
+#############################################################
+
+# 弹出验证码窗口
 import tkinter as tk
 from PIL import Image,ImageTk
 
