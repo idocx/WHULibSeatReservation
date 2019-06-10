@@ -9,7 +9,7 @@ import json
 
 
 # 抢座模式下，每次搜索的时间间隔
-interval_time = 1
+interval_time = 3
 
 # 各个场馆的代码
 lib_code = {
@@ -134,7 +134,22 @@ def get_rest_time():
     # 计算出时间差
     time_rest = 0
     if 1350 < (hour * 60 + minute) < 1365:
-        print("进入等待模式，在22:45将自动开始预约\n")
-        time_rest = 2703 - (minute * 60 + second)
-
+        time_rest = 2702 - (minute * 60 + second)
+        print("进入等待模式，在将{0}秒后自动开始预约".format(time_rest))
     return time_rest
+
+
+def get_index(target_element, data_list):
+    """
+    在元组中查找索引，用于初始化下拉菜单时显示之前配置文件中的值
+    :param target_element: 目标元素
+    :param data_list: 所要查找的元组
+    :return: int，元组中的索引，如果没有，就默认为0
+    """
+    try:
+        target_index = data_list.index(target_element)
+
+    except ValueError:
+        target_index = 0
+
+    return target_index
