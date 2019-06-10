@@ -18,7 +18,7 @@
 
 先装一下Python，教程：https://pythonguidecn.readthedocs.io/zh/latest/starting/install3/osx.html
 
-打开终端（启动台->Terminal），安装一下pillow这个库，命令是```pip3 install pillow```
+打开终端（启动台->Terminal），安装一下pillow这个库，命令是```pip install pillow```
 
 然后打开终端，切换到程序所在目录，输入```python3 UI.py```即可（也可以写一个```.command```文件简化操作）
 
