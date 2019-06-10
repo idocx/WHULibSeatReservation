@@ -7,15 +7,18 @@
 
 ## 使用方法
 ### Windows平台
-先装一下Python，教程：https://www.cnblogs.com/weven/p/7252917.html
-
-打开命令行（快捷键：win+R，敲cmd，然后回车弹出命令行），安装一下pillow这个库，命令是```pip install pillow```，下载一般挺慢的，耐心等。
-
-用记事本打开`config.json`文件，修改填上你的账号、密码和姓名，记得运行之前清除一下BOM，不然会报错。教程：https://blog.csdn.net/hongyu_zhou/article/details/80365815
-
-然后打开命令行，先切换到程序所在的盘（敲```盘符:```，如```E:```），然后切换到该目录（```cd 程序所在的目录```），最后运行```UI.py```（```python UI.py```）
+直接下载```.exe```文件，阅读使用说明
+地址：https://www.chemhy.design/wp-content/uploads/WHULibRes.rar
 
 
+### MacOS平台
+目前只能通过源码进行使用
 
-##  
-目前功能还比较基础，以后有时间再加
+先装一下Python，教程：https://pythonguidecn.readthedocs.io/zh/latest/starting/install3/osx.html
+
+打开终端（启动台->Terminal），安装一下pillow这个库，命令是```pip install pillow```
+
+然后打开终端，切换到程序所在目录，输入```python3 UI.py```即可（也可以写一个```.command```文件简化操作）
+
+### Linux平台
+用Linux的还要教程？（微笑
