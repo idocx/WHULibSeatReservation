@@ -10,13 +10,13 @@
 ### Windows平台
 直接下载```.exe```文件，阅读使用说明
 
-地址：https://www.chemhy.design/wp-content/uploads/WHULibRes.rar
+[文件下载地址]{https://www.chemhy.design/wp-content/uploads/WHULibRes.rar}
 
 
 ### MacOS平台
 目前只能通过源码进行使用
 
-先装一下Python，教程：https://pythonguidecn.readthedocs.io/zh/latest/starting/install3/osx.html
+先装一下Python，[安装教程]{https://pythonguidecn.readthedocs.io/zh/latest/starting/install3/osx.html}
 
 打开终端（启动台->Terminal），安装一下pillow这个库，命令是```pip install pillow```
 
