@@ -28,7 +28,7 @@ class WebRes:
                           "Chrome/72.0.3626.121 Safari/537.36",
             "Accept-Language": "zh-CN,zh;q=0.9",
             "Accept-Encoding": "gzip, deflate, br",
-            "Cookie": "_ga=GA1.3.1294194637.1547733807"
+            "Cookie": ""
         }
         self.headers["Cookie"] += ";" + self.get_jsessionid()  # 获取cookie，并且写入头文件
         self.synchronizer_token = self.get_synchronizer_token()  # 获取token，这个在登陆的时候要用
