@@ -8,7 +8,7 @@
 
 ## 使用方法
 ### Windows平台
-直接下载```.exe```文件，阅读使用说明
+直接下载```.exe```文件，阅读使用说明即可使用
 
 [文件下载地址](https://www.chemhy.design/wp-content/uploads/WHULibRes.rar)
 
