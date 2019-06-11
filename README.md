@@ -7,13 +7,13 @@
 使用了pillow这个第三方库，需要自行安装，方法见下
 
 ## 使用方法
-### Windows平台
+### >Windows平台
 直接下载```.exe```文件，阅读使用说明即可使用
 
 [文件下载地址](https://www.chemhy.design/wp-content/uploads/WHULibRes.rar)
 
 
-### MacOS平台
+### >MacOS平台
 目前只能通过源码进行使用
 
 先装一下Python，[安装教程](https://pythonguidecn.readthedocs.io/zh/latest/starting/install3/osx.html)
@@ -22,5 +22,5 @@
 
 然后打开终端，切换到程序所在目录，输入```python3 UI.py```即可（也可以写一个```.command```文件简化操作）
 
-### Linux平台
+### >Linux平台
 用Linux的还要教程？建议不会用的自己写一个（微笑
