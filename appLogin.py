@@ -1,45 +1,40 @@
 #############################################################
-#                        作者：我.doc                        #
-# Github地址：https://github.com/idocx/WHULibSeatReservation #
+#                        作者：我.doc
+# Github地址：https://github.com/idocx/WHULibSeatReservation
 #############################################################
 
-# 自习助手APP端组件
-from urllib import request, parse
-import ssl
-import json
+from requests import Session
+from json import loads
 import utils
 
 
-class AppRes:
-    def __init__(self):
-        self.context = ssl._create_unverified_context()
-        self.headers = {
-            "Host": "seat.lib.whu.edu.cn:8443",
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "Connection": "keep-alive",
-            "Accept": "*/*",
-            "User-Agent": "doSingle/11 CFNetwork/976 Darwin/18.2.0",
-            "Accept-Language": "zh-cn",
-            "Accept-Encoding": "gzip, deflate"
-        }
-        self.config_data = self.load_config()
-        self.reserve_date = utils.get_reserve_date()  # reserve_date是一个字符串类型
-        self.username = self.config_data["username"]
-        self.password = self.config_data["password"]
-        self.login()
-        print("------自习助手登陆成功------")
+class AppRes(Session):
+    default_header = {
+        "Host": "seat.lib.whu.edu.cn:8443",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Connection": "keep-alive",
+        "Accept": "*/*",
+        "User-Agent": "doSingle/11 CFNetwork/976 Darwin/18.2.0",
+        "Accept-Language": "zh-cn",
+        "Accept-Encoding": "gzip, deflate",
+    }
+    orgin_host = "https://seat.lib.whu.edu.cn:8443/"
 
     @staticmethod
     def load_config():
         """
         导入config.json中的参数
         """
-        try:
-            config = utils.config
-            return config
-        except FileNotFoundError:
-            print("找不到config.json文件，请确认它与当前程序在同一文件夹中")
-            assert 0
+        config = utils.config
+        return config
+
+
+    def __init__(self):
+        super(AppRes, self).__init__()
+        self.headers.update(self.default_header)
+        self.config_data = self.load_config()
+        self.reserve_date = utils.get_reserve_date()  # reserve_date是一个字符串类型
+        self.login()
 
     def req_with_json(self, url, data=None):
         """
@@ -48,29 +43,33 @@ class AppRes:
         :param url: string
         :return: dict
         """
-        req = request.Request(url, headers=self.headers, data=data)
-        response = request.urlopen(req, context=self.context).read().decode("utf-8")
-        return json.loads(response)
+        url = self.orgin_host + url
+        if data:
+            req = self.post(url, data=data)
+        else:
+            req = self.get(url)
+        response = req.text
+        return loads(response)
 
     def login(self):
         """
             用于模拟自习助手的登陆，从而实现绕过验证码
             :return: token, string 系统用token验证身份
         """
-        url = "https://seat.lib.whu.edu.cn:8443/rest/auth?username={0}&password={1}".format(self.username,
-                                                                                            self.password)
-        response = self.req_with_json(url)  # 返回的是string格式
+        url = "rest/auth?username={0}&password={1}".format(self.config_data["username"], self.config_data["password"])
+        response = self.req_with_json(url)
         if response["status"] == "fail":
             raise utils.LoginError("账号或密码不正确，请修改同目录下config.json中的账号和密码")
         token = response["data"]["token"]
         self.headers["token"] = token  # 自动更新headers，加入token记录登陆信息
+        print("【APP端登陆成功】")
 
     def get_resevation_info(self):
         """
         查询当前的预约状态
         :return: 如果没有预约，则返回None；如果有，则返回一个seat_id的string，用于取消座位
         """
-        url = "https://seat.lib.whu.edu.cn:8443/rest/v2/user/reservations"
+        url = "rest/v2/user/reservations"
         response = self.req_with_json(url)
         data = response["data"]
         if not data:
@@ -96,8 +95,8 @@ class AppRes:
         """
         if not utils.is_reasonable_time(start_time, end_time):
             raise utils.TimeSetError("预约的时间错误，请重新设定预约时间")
-        url = "https://seat.lib.whu.edu.cn:8443/rest/v2/freeBook"
-        raw_data = {
+        url = "rest/v2/freeBook"
+        data_to_send = {
             "t": 1,
             "startTime": start_time,
             "endTime": end_time,
@@ -105,7 +104,6 @@ class AppRes:
             "date": self.reserve_date,
             "t2": 2
         }
-        data_to_send = parse.urlencode(raw_data).encode("utf-8")
         response = self.req_with_json(url=url, data=data_to_send)
         data = response["data"]
         if response["status"] == "success":
@@ -125,9 +123,9 @@ class AppRes:
         {"status":"success","data":null,"message":"已终止使用当前预约","code":"0"}
         :return: dict
         """
-        url = "https://seat.lib.whu.edu.cn:8443/rest/v2/stop"
+        url = "rest/v2/stop"
         response = self.req_with_json(url)
-        print(response["massage"])
+        print(response["message"])
         if response["status"] != "success":
             return False
         return True
@@ -136,12 +134,12 @@ class AppRes:
         """
         取消预约
         须先通过get_resevation_info函数获得座位的id
+        {'status': 'success', 'data': None, 'message': '', 'code': '0'}
         :param reserve_id: int
-        :return: None
+        :return: True/False
         """
-        url = "https://seat.lib.whu.edu.cn:8443/rest/v2/cancel/{}".format(reserve_id)
+        url = "rest/v2/cancel/{}".format(reserve_id)
         response = self.req_with_json(url)
-        print(response)
         if response["status"] == "success":
             print("取消预约成功")
             return True
@@ -152,3 +150,9 @@ class AppRes:
 if __name__ == "__main__":
     res = AppRes()
     res.get_resevation_info()
+    # seat_id, res_id, seat_status = res.get_resevation_info()
+    # if seat_status == "RESERVE":
+    #     assert res.cancel_seat(res_id)  # 取消预约
+    # else:
+    #     assert res.stop_using()  # 释放座位
+    # res.reserve_seat(seat_id, 840, 1290)

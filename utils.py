@@ -6,10 +6,11 @@
 # 用于存放一些公共函数和常量
 import time
 import json
+import pickle
 
 
-# 抢座模式下，每次搜索的时间间隔
-interval_time = 3
+# 抢座模式下，每次搜索的时间间隔，建议不少于3s
+interval_time = 5
 
 # 各个场馆的代码
 lib_code = {
@@ -49,8 +50,20 @@ end_time_list = ("08:30", "09:00", "09:30", "10:00", "10:30", "11:00",
                  "20:30", "21:00", "21:30", "22:00", "22:30",)
 
 # 导入各种配置文件
-with open("config.json", "r", encoding="utf-8") as configure:
-    config = json.loads(configure.read())
+try:
+    with open("config", "rb") as configure:
+        config = pickle.load(configure)
+except EOFError and FileNotFoundError:
+    config = {
+        "username": "需要修改",
+        "password": "",
+        "lib": "不限场馆",
+        "room": "不限房间",
+        "starttime": "08:00",
+        "endtime": "22:30",
+        "window": "不限靠窗",
+        "power": "不限电源",
+    }
 
 with open("room_index.json", "r", encoding="utf-8") as room_index_file:
     room_index = json.loads(room_index_file.read())
@@ -88,8 +101,6 @@ def is_reasonable_time(start_time, end_time):
     :return: Bool
     """
     if end_time <= start_time:
-        return False
-    if start_time % 30 != 0 or end_time % 30 != 0:
         return False
     if start_time < 480 or end_time > 1350:
         return False
@@ -135,7 +146,7 @@ def get_rest_time():
     time_rest = 0
     if 1350 < (hour * 60 + minute) < 1365:
         time_rest = 2702 - (minute * 60 + second)
-        print("进入等待模式，在将{0}秒后自动开始预约".format(time_rest))
+        print("进入等待模式，在将22:45自动开始预约")
     return time_rest
 
 

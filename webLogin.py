@@ -3,45 +3,38 @@
 # Github地址：https://github.com/idocx/WHULibSeatReservation #
 #############################################################
 
-# 网页端组件
-from urllib import request, parse
+
+from requests import Session
 import random
 from io import BytesIO
-import base64
+from base64 import b64encode
 import json
-import Captcha
 import re
 import utils
+from tkinter import Tk, Label
+from PIL import Image, ImageTk
 
 
-class WebRes:
+class WebRes(Session):
     """
     实现网页端预约
     """
-    def __init__(self):
-        self.headers = {
-            "Host": "seat.lib.whu.edu.cn",
-            "Upgrade-Insecure-Requests": "1",
-            "Connection": "keep-alive",
-            "Accept": "*/*",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/72.0.3626.121 Safari/537.36",
-            "Accept-Language": "zh-CN,zh;q=0.9",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Cookie": ""
-        }
-        self.headers["Cookie"] += ";" + self.get_jsessionid()  # 获取cookie，并且写入头文件
-        self.synchronizer_token = self.get_synchronizer_token()  # 获取token，这个在登陆的时候要用
-        self.authid = self.check_captcha()  # 识别正确验证码后，系统会返回一个token，表明你已经验证成功了
-        self.config = self.load_config()
-        self.reserve_date = utils.get_reserve_date()
-        self.login()
+    default_header = {
+        "Host": "seat.lib.whu.edu.cn",
+        "Upgrade-Insecure-Requests": "1",
+        "Connection": "keep-alive",
+        "Accept": "*/*",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/72.0.3626.121 Safari/537.36",
+        "Accept-Language": "zh-CN,zh;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+    }
+    orgin_host = "https://seat.lib.whu.edu.cn/"
 
     @staticmethod
     def load_config():
         """
         加载相关配置文件，并且对其进行必要的转换
-        :param room_code_path:
         :return:
         """
         try:
@@ -60,71 +53,84 @@ class WebRes:
             config["room"] = utils.room_code[config["room"]]
             return config
 
-        except FileNotFoundError:
-            print("找不到相关配置文件，请确认它与主程序在同一文件夹中")
         except AttributeError:
             print("房间名称设置有误，请检查config.json文件")
         except KeyError:
             print("分馆名称设置有误，请检查config.json文件")
 
-    def get_jsessionid(self):
-        url = "https://seat.lib.whu.edu.cn/"
-        req = request.Request(url, headers=self.headers)
-        response = request.urlopen(req).info()
-        jsession_id = response["Set-Cookie"].split("; ")[0]
-        return jsession_id
+    def __init__(self):
+        super(WebRes, self).__init__()
+        self.headers.update(self.default_header)
+        self.config = self.load_config()
+        self.get_home_page()
+        self.synchronizer_token = self.get_synchronizer_token()  # 获取token，这个在登陆的时候要用
+        self.authid = self.check_captcha()  # 识别正确验证码后，系统会返回一个token，表明你已经验证成功了
+        self.login()
+        self.reserve_date = utils.get_reserve_date()
+
+    def get_home_page(self):
+        """
+        访问主界面，获得cookie
+        :return: None
+        """
+        url = self.orgin_host
+        self.get(url)
 
     def get_synchronizer_token(self):
-        self.headers["Origin"] = "https://seat.lib.whu.edu.cn"
-        headers = self.headers
-        headers["Accept"] = "text/html,application/xhtml+xml,application/" \
-                            "xml;q=0.9,image/webp,image/apng,*/*;q=0.8"
-        url = "https://seat.lib.whu.edu.cn/login?targetUri=%2F"
-        req = request.Request(url, headers=self.headers)
-        response = request.urlopen(req).read().decode("utf-8")
+        """
+        获取一个token，用作身份识别
+        :return: synchronizer token
+        """
+        self.headers.update({"Origin": self.orgin_host})
+        url = self.orgin_host + "login?targetUri=%2F"
+        response = self.get(url).text
+        self.headers.update({"Referer": url})
 
-        token = re.search('(?<=name="SYNCHRONIZER_TOKEN" value=").+?(?=")', response).group()  # 利用正则表达式解析网页
+        try:
+            token = re.search(r'(?<=name="SYNCHRONIZER_TOKEN" value=").+?(?=")', response).group()
+        except AttributeError:
+            raise utils.LoginError("无法访问网页，请检查当前网络状态")
 
         return token
 
     def get_captcha(self):
-        headers = self.headers
-        headers["Referer"] = "https://seat.lib.whu.edu.cn/simpleCaptcha/chCaptcha"
-        headers["X-Requested-With"] = "XMLHttpRequest"
-        url = "https://seat.lib.whu.edu.cn/captcha"
-        req = request.Request(url, headers=headers)
-        response = request.urlopen(req).read().decode("utf-8")
+        """
+        获取并且调用打开验证码的窗口，供用户识别
+        :return:
+        """
+        url = self.orgin_host + "captcha"
+        response = self.get(url).text
         response = json.loads(response)
         str_data = response["data"]
         token = response["token"]
-        return self.identify_captcha(str_data, token), token
+        return self.open_captcha(str_data, token), token
 
-    def identify_captcha(self, str_data, token):
-        captcha_url = "https://seat.lib.whu.edu.cn/captchaImg?" \
-                      "token={}&r={}".format(token, random.random())
-        headers = self.headers
-        headers["Accept"] = "image/webp,image/apng,image/*,*/*;q=0.8"
-        req = request.Request(captcha_url, headers=headers)
-        response = request.urlopen(req).read()
+    def open_captcha(self, str_data, token):
+        """
+        打开验证码的窗口
+        :param str_data: 所要求点选的字
+        :param token: 请求图片的token
+        :return: 经过base64加密的坐标信息
+        """
+        captcha_url = self.orgin_host + "captchaImg?token={}&r={}".format(token, random.random())
+        response = self.get(captcha_url).content
 
         with BytesIO(response) as img:
-            cap_win = Captcha.Id_Captcha(img, str_data)
+            cap_win = Captcha(img, str_data)
             pos = cap_win.get_pos()
-            assert pos
+            if not pos:
+                raise Exception("程序意外终止，请重新启动")
             pos = json.dumps(pos)
-        return base64.b64encode(bytes(pos, encoding="utf-8"))
+        return b64encode(bytes(pos, encoding="utf-8"))
 
     def check_captcha(self):
+        """
+        把识别好的验证码数据发出，如果不正确，就再发一次，直至成功为止
+        :return: 验证后的token
+        """
         pos_data, token = self.get_captcha()
-        headers = self.headers
-        headers["Referer"] = "https://seat.lib.whu.edu.cn/simpleCaptcha/chCaptcha"
-        headers["X-Requested-With"] = "XMLHttpRequest"
-        headers["Accept"] = "application/json, text/javascript, */*; q=0.01"
-        headers["Cache-Control"] = "max-age=0"
-        url = "https://seat.lib.whu.edu.cn/checkCaptcha?" \
-              "a={}%3D&token={}&userId=HTTP/1.1".format(pos_data.decode('utf-8'), token)
-        req = request.Request(url, headers=headers)
-        response = request.urlopen(req).read().decode("utf-8")
+        url = self.orgin_host + "checkCaptcha?a={}%3D&token={}&userId=HTTP/1.1".format(pos_data.decode('utf-8'), token)
+        response = self.get(url).text
         response = json.loads(response)
         if response["status"] != "OK":
             token = self.check_captcha()
@@ -135,57 +141,36 @@ class WebRes:
         登陆程序，只要把该发的都发过去就行了，还有这里的Token更新了
         :return:
         """
-        url = "https://seat.lib.whu.edu.cn/auth/signIn"
-        headers = self.headers
-        headers["Cache-Control"] = "max-age=0"
-        headers["Content-Type"] = "application/x-www-form-urlencoded"
-        headers["Accept"] = "text/html,application/xhtml+xml,application/" \
-                            "xml;q=0.9,image/webp,image/apng,*/*;q=0.8"
-        headers["Referer"] = "https://seat.lib.whu.edu.cn/login?targetUri=%2F"
-        raw_data = {
+        url = self.orgin_host + "auth/signIn"
+        data_to_send = {
             "SYNCHRONIZER_TOKEN": self.synchronizer_token,
             "SYNCHRONIZER_URI": "/login",
             "username": self.config["username"],
             "password": self.config["password"],
             "authid": self.authid,
         }
-        data_to_send = parse.urlencode(raw_data).encode("utf-8")
-        headers["Content-Length"] = str(len(data_to_send))
-        req = request.Request(url, headers=headers, data=data_to_send)
-        response = request.urlopen(req).read().decode("utf-8")
+        response = self.post(url, data=data_to_send).text
+        self.headers.update({
+            "Referer": self.orgin_host
+        })
 
-        # 要姓名是为了验证成功登陆
-        if re.search(r'(?<=<strong>).+?(?=</strong>)', response).group() != self.config["name"]:
+        try:
+            re.search(r'(?<=<a id="btnStop" href="#" action="stopUsing">).+?(?=</a>)', response)
+        except AttributeError:
             raise utils.LoginError("登陆失败")
 
         synchronizer_token = re.search('(?<=name="SYNCHRONIZER_TOKEN" value=").+?(?=")', response).group()
+
         self.synchronizer_token = synchronizer_token
-
-        print("------网页端登陆成功------")
-
-    def get_room(self):
-        headers = self.headers
-        headers["Referer"] = "https://seat.lib.whu.edu.cn/"
-        url = "https://seat.lib.whu.edu.cn/freeBook/ajaxGetRooms"
-        raw_data = {
-            "id": self.config["lib"]
-        }
-        data_to_send = parse.urlencode(raw_data).encode("utf-8")
-        headers["Content-Length"] = str(len(data_to_send))
-        req = request.Request(url, headers=headers, data=data_to_send)
-        response = request.urlopen(req).read().decode("utf-8")
-        return response
+        print("【网页端登陆成功】")
 
     def free_search(self):
         """
-        对当前的空座位进行扫描
-        :return: 返回空闲的座位的id
+        对当前的空座位进行搜索
+        :return: 返回空闲的座位的id list
         """
-        headers = self.headers
-        headers["Referer"] = "https://seat.lib.whu.edu.cn/"
-        url = "https://seat.lib.whu.edu.cn/freeBook/ajaxSearch"
-
-        raw_data = {
+        url = self.orgin_host + "freeBook/ajaxSearch"
+        data_to_send = {
             "onDate": self.reserve_date,
             "building": self.config["lib"],
             "room": self.config["room"],
@@ -195,25 +180,19 @@ class WebRes:
             "power": self.config["power"],
             "window": self.config["window"],
         }
+        response = self.post(url, data=data_to_send).text
 
-        data_to_send = parse.urlencode(raw_data).encode("utf-8")
-        headers["Content-Length"] = str(len(data_to_send))
-        req = request.Request(url, headers=headers, data=data_to_send)
-        response = request.urlopen(req).read().decode("utf-8")
         seat_available = re.findall(r'(?<=id=\\"seat_).+?(?=\\")', response)
         seat_available = [int(i) for i in seat_available]
         return seat_available
 
     def res_seat(self, target_seat):
         """
-        :param target_seat: 要预约的座位id，是一个整形
-        :return: bool value，便于循环
+        :param target_seat: 要预约的座位id，是一个int类型
+        :return: bool value，便于循环搜索
         """
-        url = "https://seat.lib.whu.edu.cn/selfRes"
-        headers = self.headers
-        headers["Referer"] = "https://seat.lib.whu.edu.cn/"
-
-        raw_data = {
+        url = self.orgin_host + "selfRes"
+        data_to_send = {
             "SYNCHRONIZER_TOKEN": self.synchronizer_token,
             "SYNCHRONIZER_URI": "/",
             "date": self.reserve_date,
@@ -222,11 +201,7 @@ class WebRes:
             "end": self.config["endmin"],
             "authid": -1,
         }
-
-        data_to_send = parse.urlencode(raw_data).encode("utf-8")
-        headers["Content-Length"] = str(len(data_to_send))
-        req = request.Request(url, headers=headers, data=data_to_send)
-        response = request.urlopen(req).read().decode("utf-8")
+        response = self.post(url, data=data_to_send).text
 
         try:
             if re.search(r'(?<=状&nbsp;&nbsp;&nbsp;&nbsp;态 ： </em>).+?(?=</dd>)', response).group() != "预约":
@@ -245,5 +220,43 @@ class WebRes:
         return True
 
 
+class Captcha(Tk):
+    def __init__(self, img, string):
+        super(Captcha, self).__init__()
+        self.pos = []
+        self.title("验证码")
+        self.geometry("+500+300")
+
+        img = Image.open(img)
+        self.img = ImageTk.PhotoImage(img)
+
+        self.cap_label = Label(self, image=self.img)
+        self.cap_label.bind("<Button-1>", self.callback)
+        self.cap_label.pack()
+
+        self.str_label = Label(self, text='请依次选择图中的"{}"，"{}"，"{}"'.format(*string[:3]))
+        self.str_label.pack()
+
+        self.mainloop()
+
+    def callback(self, event):
+        x = event.x
+        y = event.y
+        self.pos.append(
+            {"x": x, "y": y}
+        )
+        # 长度到3时，就会自己关掉
+        if len(self.pos) == 3:
+            self.destroy()
+
+    def get_pos(self):
+        """
+        获取位置坐标，供主程序调用
+        :return: dict
+        """
+        return self.pos
+
+
 if __name__ == "__main__":
-    pass
+    web_res = WebRes()
+    seat_list = web_res.free_search()
