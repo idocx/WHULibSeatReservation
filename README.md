@@ -8,6 +8,10 @@
 
 ## 界面展示
 
+<div align=center>
+  <img src="https://github.com/idocx/WHULibSeatReservation/blob/master/demo.jpg" height="500"/>
+</div>
+
 
 ## 使用方法
 ### >Windows平台
@@ -19,9 +23,9 @@
 
 先装一下Python，[安装教程](https://pythonguidecn.readthedocs.io/zh/latest/starting/install3/osx.html)
 
-打开终端（启动台->Terminal），安装一下pillow库，命令```pip install pillow requests```
+打开终端（启动台->Terminal），安装一下pillow库，命令```pip install PyQt5 requests```
 
-然后打开终端，切换到程序所在目录，输入```python3 UI.py```即可（也可以写一个```.command```文件简化操作）
+然后打开终端，切换到程序所在目录，输入```python3 main_win.py```即可（也可以写一个```.command```文件简化操作）
 
 ### >Linux平台
-没有教程
+```pass```
