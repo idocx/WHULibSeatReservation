@@ -4,7 +4,7 @@
 #############################################################
 
 from requests import Session
-from json import loads
+import json
 import utils
 
 
@@ -20,19 +20,10 @@ class AppRes(Session):
     }
     orgin_host = "https://seat.lib.whu.edu.cn:8443/"
 
-    @staticmethod
-    def load_config():
-        """
-        导入config.json中的参数
-        """
-        config = utils.config
-        return config
-
-
-    def __init__(self):
+    def __init__(self, config):
         super(AppRes, self).__init__()
         self.headers.update(self.default_header)
-        self.config_data = self.load_config()
+        self.config = config
         self.reserve_date = utils.get_reserve_date()  # reserve_date是一个字符串类型
         self.login()
 
@@ -49,14 +40,20 @@ class AppRes(Session):
         else:
             req = self.get(url)
         response = req.text
-        return loads(response)
+        if response == "WHU Library seat reserving system is over loading," \
+                       " please don't use un-offical applications!":
+            raise Exception(
+                """WHU Library seat reserving system is over loading, please don't use un-offical applications!
+                武汉大学图书馆预约系统已经不堪重负，请不要使用非官方的预约应用！"""
+            )
+        return json.loads(response)
 
     def login(self):
         """
             用于模拟自习助手的登陆，从而实现绕过验证码
             :return: token, string 系统用token验证身份
         """
-        url = "rest/auth?username={0}&password={1}".format(self.config_data["username"], self.config_data["password"])
+        url = "rest/auth?username={0}&password={1}".format(self.config["username"], self.config["password"])
         response = self.req_with_json(url)
         if response["status"] == "fail":
             raise utils.LoginError("账号或密码不正确，请修改同目录下config.json中的账号和密码")
@@ -93,8 +90,6 @@ class AppRes(Session):
         :param end_time: 结束时间
         :return: 预约的请求号
         """
-        if not utils.is_reasonable_time(start_time, end_time):
-            raise utils.TimeSetError("预约的时间错误，请重新设定预约时间")
         url = "rest/v2/freeBook"
         data_to_send = {
             "t": 1,
@@ -143,16 +138,9 @@ class AppRes(Session):
         if response["status"] == "success":
             print("取消预约成功")
             return True
-        print("取消预约失败")
+        print("取消预约失败，请重试")
         return False
 
 
 if __name__ == "__main__":
-    res = AppRes()
-    res.get_resevation_info()
-    # seat_id, res_id, seat_status = res.get_resevation_info()
-    # if seat_status == "RESERVE":
-    #     assert res.cancel_seat(res_id)  # 取消预约
-    # else:
-    #     assert res.stop_using()  # 释放座位
-    # res.reserve_seat(seat_id, 840, 1290)
+    pass

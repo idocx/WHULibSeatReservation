@@ -1,18 +1,15 @@
 #############################################################
-#                        作者：我.doc                        #
-# Github地址：https://github.com/idocx/WHULibSeatReservation #
+#                        作者：我.doc
+# Github地址：https://github.com/idocx/WHULibSeatReservation
 #############################################################
-
 
 from requests import Session
 import random
-from io import BytesIO
 from base64 import b64encode
 import json
 import re
 import utils
-from tkinter import Tk, Label
-from PIL import Image, ImageTk
+import captcha_win
 
 
 class WebRes(Session):
@@ -32,36 +29,25 @@ class WebRes(Session):
     orgin_host = "https://seat.lib.whu.edu.cn/"
 
     @staticmethod
-    def load_config():
+    def load_config(config):
         """
         加载相关配置文件，并且对其进行必要的转换
         :return:
         """
-        try:
-            config = utils.config
+        config["room"] = utils.room_code[config["lib"]][config["room"]]  # 先取房间再取场馆
+        config["lib"] = utils.lib_code[config["lib"]]
+        config["startmin"] = utils.time_transfer(utils.start_time_list[config["starttime"]])
+        config["endmin"] = utils.time_transfer(utils.end_time_list[config["endtime"]])
+        config["window"] = utils.window_code[config["window"]]
+        config["power"] = utils.power_code[config["power"]]
+        return config
 
-            config["lib"] = utils.lib_code[config["lib"]]
-            config["startmin"] = utils.time_transfer(config["starttime"])
-            config["endmin"] = utils.time_transfer(config["endtime"])
-
-            if not utils.is_reasonable_time(config["startmin"], config["endmin"]):
-                raise utils.TimeSetError("预约的时间错误，请重新设定预约时间")
-
-            config["window"] = utils.window_code[config["window"]]
-            config["power"] = utils.power_code[config["power"]]
-
-            config["room"] = utils.room_code[config["room"]]
-            return config
-
-        except AttributeError:
-            print("房间名称设置有误，请检查config.json文件")
-        except KeyError:
-            print("分馆名称设置有误，请检查config.json文件")
-
-    def __init__(self):
+    def __init__(self, config_file, parent=None):
         super(WebRes, self).__init__()
+        self.parent = parent
+        self.cap_win = None
         self.headers.update(self.default_header)
-        self.config = self.load_config()
+        self.config = self.load_config(config_file)
         self.get_home_page()
         self.synchronizer_token = self.get_synchronizer_token()  # 获取token，这个在登陆的时候要用
         self.authid = self.check_captcha()  # 识别正确验证码后，系统会返回一个token，表明你已经验证成功了
@@ -89,7 +75,7 @@ class WebRes(Session):
         try:
             token = re.search(r'(?<=name="SYNCHRONIZER_TOKEN" value=").+?(?=")', response).group()
         except AttributeError:
-            raise utils.LoginError("无法访问网页，请检查当前网络状态")
+            raise utils.LoginError("无法访问网页，请检查当前网络状态；或者图书馆网站正在维护")
 
         return token
 
@@ -105,22 +91,21 @@ class WebRes(Session):
         token = response["token"]
         return self.open_captcha(str_data, token), token
 
-    def open_captcha(self, str_data, token):
+    def open_captcha(self, cap_text, token):
         """
         打开验证码的窗口
-        :param str_data: 所要求点选的字
+        :param cap_text: 所要求点选的字
         :param token: 请求图片的token
         :return: 经过base64加密的坐标信息
         """
         captcha_url = self.orgin_host + "captchaImg?token={}&r={}".format(token, random.random())
-        response = self.get(captcha_url).content
-
-        with BytesIO(response) as img:
-            cap_win = Captcha(img, str_data)
-            pos = cap_win.get_pos()
-            if not pos:
-                raise Exception("程序意外终止，请重新启动")
-            pos = json.dumps(pos)
+        img = self.get(captcha_url).content
+        self.cap_win = captcha_win.CaptchaWin(cap_text, img, parent=self.parent)
+        self.cap_win.exec()
+        pos = self.cap_win.get_pos()
+        if len(pos) < 3:
+            raise Exception("程序意外终止，请重新启动")
+        pos = json.dumps(pos)
         return b64encode(bytes(pos, encoding="utf-8"))
 
     def check_captcha(self):
@@ -154,9 +139,7 @@ class WebRes(Session):
             "Referer": self.orgin_host
         })
 
-        try:
-            re.search(r'(?<=<a id="btnStop" href="#" action="stopUsing">).+?(?=</a>)', response)
-        except AttributeError:
+        if not re.search(r'(?<=<a id="btnStop" href="#" action="stopUsing">).+?(?=</a>)', response):
             raise utils.LoginError("登陆失败")
 
         synchronizer_token = re.search('(?<=name="SYNCHRONIZER_TOKEN" value=").+?(?=")', response).group()
@@ -170,6 +153,8 @@ class WebRes(Session):
         :return: 返回空闲的座位的id list
         """
         url = self.orgin_host + "freeBook/ajaxSearch"
+        if not utils.is_reasonable_time(self.config["startmin"], self.config["endmin"]):
+            raise utils.TimeSetError("时间设置不正确，请重新设置")
         data_to_send = {
             "onDate": self.reserve_date,
             "building": self.config["lib"],
@@ -220,43 +205,5 @@ class WebRes(Session):
         return True
 
 
-class Captcha(Tk):
-    def __init__(self, img, string):
-        super(Captcha, self).__init__()
-        self.pos = []
-        self.title("验证码")
-        self.geometry("+500+300")
-
-        img = Image.open(img)
-        self.img = ImageTk.PhotoImage(img)
-
-        self.cap_label = Label(self, image=self.img)
-        self.cap_label.bind("<Button-1>", self.callback)
-        self.cap_label.pack()
-
-        self.str_label = Label(self, text='请依次选择图中的"{}"，"{}"，"{}"'.format(*string[:3]))
-        self.str_label.pack()
-
-        self.mainloop()
-
-    def callback(self, event):
-        x = event.x
-        y = event.y
-        self.pos.append(
-            {"x": x, "y": y}
-        )
-        # 长度到3时，就会自己关掉
-        if len(self.pos) == 3:
-            self.destroy()
-
-    def get_pos(self):
-        """
-        获取位置坐标，供主程序调用
-        :return: dict
-        """
-        return self.pos
-
-
 if __name__ == "__main__":
-    web_res = WebRes()
-    seat_list = web_res.free_search()
+    pass

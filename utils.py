@@ -1,39 +1,73 @@
 #############################################################
-#                        作者：我.doc                        #
-# Github地址：https://github.com/idocx/WHULibSeatReservation #
+#                        作者：我.doc
+# Github地址：https://github.com/idocx/WHULibSeatReservation
 #############################################################
 
 # 用于存放一些公共函数和常量
-import time
-import json
-import pickle
 
+import time
+
+# ui的字体字号
+font_name = "微软雅黑"
+console_font_name = "Consolas-with-Yahei"
+font_size = 9
 
 # 抢座模式下，每次搜索的时间间隔，建议不少于3s
 interval_time = 5
 
+########################
+# 用于发送请求时所用的代码
+########################
+
 # 各个场馆的代码
-lib_code = {
-    "不限场馆": "null",
-    "信息分馆": 1,
-    "工学分馆": 2,
-    "医学分馆": 3,
-    "总馆": 4,
+# "不限场馆": "null",
+# "信息分馆": 1,
+# "工学分馆": 2,
+# "医学分馆": 3,
+# "总馆": 4,
+lib_code = {4: "null", 1: 1, 2: 2, 3: 3, 0: 4}
+
+# 选择房间对应的代码
+# '不限房间': 'null', '3C创客空间': 4, '西自然科学区': 6, '东自然科学区': 7, '西社会科学区': 8,
+# '西图书阅览区': 9, '东社会科学区': 10, '东图书阅览区': 11, '自主学习区': 12, '3C创客电子阅读': 13,
+# '3C创客双屏电脑': 14, '创新学习苹果区': 15, '创新学习云桌面': 16, '201自科图书区': 19,
+# '204教学参考区': 20, '302中文科技B区': 21, '305科技期刊区': 23, '402中文文科区': 24,
+# '502外文区': 26, '506医学人文区': 27, '503培训教室': 28, '2楼走廊': 29, '205电阅笔记本区': 31,
+# '301东自科借阅区': 32, '305中自科借阅区': 33, '401东自科借阅区': 34, '405中期刊阅览区': 35,
+# '501东外文借阅区': 37, '505中自科借阅区': 38, 'A1座位区': 39, 'A2借阅区': 51, 'A3': 52,
+# 'A4': 60, 'A5': 61, 'A1沙发区': 62, 'A1电子阅览室': 63, 'B1': 65, 'A1苹果区': 66, '205电阅云桌面区': 68,
+# 'A1手提电脑区': 76, 'E2 报刊阅览区': 84, 'E3 学位论文阅览区': 85, 'E4 港台文献阅览区': 86,
+# 'E5 地方文献阅览区': 87, 'E6 影印文献（古籍/民国）阅览区': 88, 'E2大厅': 89, '创新学习讨论区': 90,
+# 'E1信息共享空间': 91, 'E1信息共享空间双屏云桌面区': 92
+room_code = {
+    0: {0: "null", 1: 39, 2: 51, 3: 52, 4: 60, 5: 61, 6: 62, 7: 63, 8: 65,9: 66, 10: 76,
+        11: 84, 12: 85, 13: 86, 14: 87, 15: 88, 16: 89, 17: 91, 18: 92},
+
+    1: {0: "null", 1: 4, 2: 6, 3: 7, 4: 8, 5: 9, 6: 10,
+        7: 11,8: 12,9: 13, 10: 14, 11: 15, 12: 16, 13: 90},
+
+    2: {0: "null", 1: 19, 2: 29, 3: 31, 4: 32, 5: 33, 6: 34, 7: 35, 8: 37, 9: 38, 10: 68},
+
+    3: {0: "null", 1: 20, 2: 21, 3: 23, 4: 24, 5: 26, 6: 27, 7: 28},
+
+    4: {0: "null"}
 }
 
 # 有无电源对应的代码
-power_code = {
-    "不限电源": "null",
-    "有电源": 1,
-    "无电源": 0,
-}
+# "不限电源": "null",
+# "有电源": 1,
+# "无电源": 0,
+power_code = {0: "null", 1: 1, 2: 0}
 
 # 是否靠窗对应的代码
-window_code = {
-    "不限靠窗": "null",
-    "靠窗": 1,
-    "不靠窗": 0,
-}
+# "不限靠窗": "null",
+# "靠窗": 1,
+# "不靠窗": 0,
+window_code = {0: "null", 1: 1, 2: 0}
+
+########################
+# 用于GUI中下拉菜单的选择
+########################
 
 # 开始时间列表
 start_time_list = ("08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
@@ -49,39 +83,40 @@ end_time_list = ("08:30", "09:00", "09:30", "10:00", "10:30", "11:00",
                  "17:30", "18:00", "18:30", "19:00", "19:30", "20:00",
                  "20:30", "21:00", "21:30", "22:00", "22:30",)
 
-# 导入各种配置文件
-try:
-    with open("config", "rb") as configure:
-        config = pickle.load(configure)
-except EOFError and FileNotFoundError:
-    config = {
-        "username": "需要修改",
-        "password": "",
-        "lib": "不限场馆",
-        "room": "不限房间",
-        "starttime": "08:00",
-        "endtime": "22:30",
-        "window": "不限靠窗",
-        "power": "不限电源",
-    }
+# 分馆列表
+building_list = ("总馆", "信息分馆", "工学分馆", "医学分馆", "不限场馆")
 
-with open("room_index.json", "r", encoding="utf-8") as room_index_file:
-    room_index = json.loads(room_index_file.read())
+# 靠窗列表
+window_list = ("不限靠窗", "靠窗", "不靠窗",)
 
-with open("room_code.json", 'r', encoding="utf-8") as room_code_file:
-    room_code = json.loads(room_code_file.read())
+
+power_list = ("不限电源", "有电源", "无电源",)
+
+room_index = {
+    0: ("不限房间", "A1座位区", "A2借阅区", "A3", "A4", "A5", "A1沙发区",
+        "A1电子阅览室", "B1", "A1苹果区", "A1手提电脑区", "E2 报刊阅览区",
+        "E3 学位论文阅览区", "E4 港台文献阅览区", "E5 地方文献阅览区",
+        "E6 影印文献（古籍/民国）阅览区", "E2大厅", "E1信息共享空间",
+        "E1信息共享空间双屏云桌面区"),
+
+    1: ("不限房间", "3C创客空间", "西自然科学区", "东自然科学区", "西社会科学区",
+        "西图书阅览区", "东社会科学区", "东图书阅览区", "自主学习区", "3C创客电子阅读",
+        "3C创客双屏电脑", "创新学习苹果区", "创新学习云桌面", "创新学习讨论区"),
+
+    2: ("不限房间", "201自科图书区", "2楼走廊", "205电阅笔记本区", "301东自科借阅区",
+        "305中自科借阅区", "401东自科借阅区", "405中期刊阅览区", "501东外文借阅区",
+        "505中自科借阅区", "205电阅云桌面区"),
+
+    3: ("不限房间", "204教学参考区", "302中文科技B区", "305科技期刊区", "402中文文科区",
+        "502外文区", "506医学人文区", "503培训教室"),
+
+    4: ("不限房间",)
+}
 
 
 class TimeSetError(Exception):
     """
-    时间设置错误
-    """
-    pass
-
-
-class CaptchaError(Exception):
-    """
-    验证码错误
+    时间设置不正确
     """
     pass
 
@@ -91,20 +126,6 @@ class LoginError(Exception):
     登陆失败
     """
     pass
-
-
-def is_reasonable_time(start_time, end_time):
-    """
-    默认开始时间不是now，用于判断预约时间是否合法
-    :param start_time: 开始时间，整数（分钟）
-    :param end_time: 结束时间，整数（分钟）
-    :return: Bool
-    """
-    if end_time <= start_time:
-        return False
-    if start_time < 480 or end_time > 1350:
-        return False
-    return True
 
 
 def time_transfer(set_time):
@@ -133,6 +154,28 @@ def get_reserve_date():
     return "{0}-{1:02}-{2:02}".format(*date)
 
 
+def is_reasonable_time(start_time, end_time):
+    """
+    用于判断预约时间是否合法
+    :param start_time: 开始时间，整数（分钟）
+    :param end_time: 结束时间，整数（分钟）
+    :return: Bool
+    """
+    if end_time <= start_time:
+        return False
+
+    if start_time < 480 or end_time > 1350:
+        return False
+
+    current_time_in_sec = time.time()
+    hour, minute = time.localtime(current_time_in_sec)[3:5]
+    current_time = hour * 60 + minute
+    if start_time <= current_time:
+        return False
+
+    return True
+
+
 def get_rest_time():
     """
     如果时间在22:30~22:45之间，则会开启等候预约模式
@@ -148,19 +191,3 @@ def get_rest_time():
         time_rest = 2702 - (minute * 60 + second)
         print("进入等待模式，在将22:45自动开始预约")
     return time_rest
-
-
-def get_index(target_element, data_list):
-    """
-    在元组中查找索引，用于初始化下拉菜单时显示之前配置文件中的值
-    :param target_element: 目标元素
-    :param data_list: 所要查找的元组
-    :return: int，元组中的索引，如果没有，就默认为0
-    """
-    try:
-        target_index = data_list.index(target_element)
-
-    except ValueError:
-        target_index = 0
-
-    return target_index

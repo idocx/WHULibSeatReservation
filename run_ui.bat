@@ -1,3 +1,3 @@
 @echo off
-python UI.py
+python main_win.py
 pause
