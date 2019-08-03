@@ -4,13 +4,14 @@
 ## 版本要求
 本程序要求Python 3版本
 
-使用了pillow和requests，需要自行安装，方法见下
+使用了PyQt5和requests，需要自行安装，方法见下
+
+## 界面展示
+
 
 ## 使用方法
 ### >Windows平台
-直接下载文件，阅读使用说明即可使用
-
-[文件下载地址](https://www.chemhy.design/wp-content/uploads/WHULibRes.rar)
+直接下载v0.5版本的二进制文件，阅读使用说明即可使用
 
 
 ### >MacOS平台
