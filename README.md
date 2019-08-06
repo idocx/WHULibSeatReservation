@@ -18,7 +18,7 @@
 
 Windows推荐下载的Python 3版本：[下载连接](https://www.anaconda.com/distribution/)
 
-运行“Setup.exe”文件，系统将自动安装PyQt5和requests（需要已经安装了Python和pip，国内pip的使用可能需要换源）
+运行```Setup.exe```文件，系统将自动安装PyQt5和requests（需要已经安装了Python和pip，国内pip的使用可能需要换源）
 
 Windows下pip换源方法：[教程](https://blog.csdn.net/Artprog/article/details/75632723)
 
