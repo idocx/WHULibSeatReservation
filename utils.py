@@ -9,7 +9,7 @@ import time
 
 # ui的字体字号
 font_name = "微软雅黑"
-console_font_name = "Consolas-with-Yahei"
+console_font_name = "微软雅黑"
 font_size = 9
 
 # 抢座模式下，每次搜索的时间间隔，建议不少于3s
