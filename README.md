@@ -15,10 +15,11 @@
 
 ## 使用方法
 ### >Windows平台
+Windows推荐下载的Python 3版本：[下载连接](https://www.anaconda.com/distribution/)
 
-运行“Setup.exe”文件，系统将自动安装PyQt5和requests（需要已经安装了Python3和pip3，国内pip的使用可能需要换源）
+运行“Setup.exe”文件，系统将自动安装PyQt5和requests（需要已经安装了Python 3和pip3，若按上面连接安装的Python 3则已经自动安装了pip3）
 
-Windows下pip换源方法：https://blog.csdn.net/Artprog/article/details/75632723
+国内pip的使用可能需要换源，Windows下pip换源方法：[教程](https://blog.csdn.net/Artprog/article/details/75632723)
 
 完成安装以后运行“武汉大学图书馆自习助手.exe”即可正常启动。
 
