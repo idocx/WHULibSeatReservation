@@ -16,11 +16,11 @@
 ## 使用方法
 ### >Windows平台
 
-运行“Setup.exe”文件，系统将自动安装PyQt5和requests（需要已经安装了Python3和pip3，国内pip的使用可能需要换源）
+运行“Setup.exe”文件，系统将自动安装PyQt5和requests（需要已经安装了Python和pip，国内pip的使用可能需要换源）
 
-Windows下pip换源方法：https://blog.csdn.net/Artprog/article/details/75632723
+Windows下pip换源方法：[教程](https://blog.csdn.net/Artprog/article/details/75632723)
 
-完成安装以后运行“武汉大学图书馆自习助手.exe”即可正常启动。
+完成安装以后运行```武汉大学图书馆自习助手.exe```即可正常启动。
 
 ### >MacOS平台
 目前只能通过源码进行使用
