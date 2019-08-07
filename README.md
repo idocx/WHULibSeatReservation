@@ -62,8 +62,6 @@ g++ run.cpp -o WHULibSR
 
 当前目录下会生成```Setup```和```WHULibSR```两个可执行文件。
 
-后面的操作Linux用户也应该很熟悉。
-
 给两个可执行文件赋予可执行权限：
 ```bash
 chmod +x Setup
