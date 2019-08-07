@@ -37,26 +37,32 @@ Linux用户不需要下载```Setup.exe```和```武汉大学图书馆自习助手
 
 需要安装gcc, Python3和pip3，并加入环境变量。
 
-将'''Setup.cpp'''和'''run.cpp'''中
+将```Setup.cpp```和```run.cpp```中
 
-'''string commandline="cmd";'''
+```C++
+string commandline="cmd;
+```
 
-修改为'''string commandline="bash";'''
+修改为
+
+```C++
+string commandline="bash";
+```
 
 在当前目录下在命令行运行一下指令编译cpp文件：
-'''
+```
 g++ Setup.cpp -o Setup
 g++ run.cpp -o WHULibSR
-'''
+```
 
 当前目录下会生成'''Setup'''和'''WHULibSR'''两个可执行文件。
 
 赋予可执行权限：
-'''
+```
 chmod +x Setup
 chmod +x WHULibSR
-'''
+```
 
-运行'''./Setup'''将自动安装PyQt5和requests依赖。
+运行```./Setup```将自动安装PyQt5和requests依赖。
 
-运行'''./WHULibSR'''即可正常启动。
+运行```./WHULibSR```即可正常启动。
