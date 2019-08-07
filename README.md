@@ -17,8 +17,6 @@
 ### >Windows平台
 #### 通过可执行文件进行使用
 
-不需要下载```Setup.cpp```和```run.cpp```文件。
-
 Windows推荐下载的Python 3版本：[下载连接](https://www.anaconda.com/distribution/)
 
 运行```Setup.exe```文件，系统将自动安装PyQt5和requests。（需要安装了Python和pip，若按上面链接安装则已经自动安装了pip）
@@ -30,8 +28,6 @@ Windows推荐下载的Python 3版本：[下载连接](https://www.anaconda.com/d
 ### >MacOS平台
 #### 目前只能通过源码进行使用
 
-不需要下载```Setup.cpp```, ```Setup.exe```, ```run.cpp```和```武汉大学图书馆自习助手.exe```文件。
-
 先装一下Python，[安装教程](https://pythonguidecn.readthedocs.io/zh/latest/starting/install3/osx.html)
 
 打开终端（启动台->Terminal），安装一下相关库，命令```pip install PyQt5 requests```
@@ -42,9 +38,9 @@ Windows推荐下载的Python 3版本：[下载连接](https://www.anaconda.com/d
 
 #### 方式一：编译可执行程序
 
-Linux用户不需要下载```Setup.exe```和```武汉大学图书馆自习助手.exe```文件。
-
 需要安装gcc, Python 3和pip3，并加入环境变量。（安装方法Linux用户应该很熟悉）
+
+国内pip的使用可能需要换源。（换源方法Linux用户应该很熟悉）
 
 将```Setup.cpp```和```run.cpp```中
 
@@ -81,7 +77,7 @@ chmod +x WHULibSR
 #### 方式二：通过源码进行使用
 需要安装Python 3和pip3，并加入环境变量。（安装方法Linux用户应该很熟悉）
 
-不需要gcc，也不需要下载```Setup.cpp```, ```Setup.exe```, ```run.cpp```和```武汉大学图书馆自习助手.exe```文件。
+国内pip的使用可能需要换源。（换源方法Linux用户应该很熟悉）
 
 打开终端，安装一下相关库，命令```pip3 install PyQt5 requests```
 
