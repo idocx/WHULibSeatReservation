@@ -11,7 +11,7 @@ int main()
     
     if(commandline=="cmd")
         system("python main_win.py");
-    elseif(commandline=="bash")
+    else if(commandline=="bash")
         system("python3 main_win.py");
     return 0;
 }
