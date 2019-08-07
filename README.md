@@ -40,7 +40,7 @@ Linux用户不需要下载```Setup.exe```和```武汉大学图书馆自习助手
 将```Setup.cpp```和```run.cpp```中
 
 ```C++
-string commandline="cmd;
+string commandline="cmd";
 ```
 
 修改为
