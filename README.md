@@ -35,7 +35,7 @@ Windows推荐下载的Python 3版本：[下载连接](https://www.anaconda.com/d
 ### >Linux平台
 Linux用户不需要下载```Setup.exe```和```武汉大学图书馆自习助手.exe```文件。
 
-需要安装gcc, Python3和pip3，并加入环境变量。
+需要安装gcc, Python 3和pip3，并加入环境变量。（安装方法Linux用户应该很熟悉）
 
 将```Setup.cpp```和```run.cpp```中
 
@@ -57,7 +57,9 @@ g++ run.cpp -o WHULibSR
 
 当前目录下会生成'''Setup'''和'''WHULibSR'''两个可执行文件。
 
-赋予可执行权限：
+后面的操作Linux用户也应该很熟悉。
+
+给两个可执行文件赋予可执行权限：
 ```bash
 chmod +x Setup
 chmod +x WHULibSR
