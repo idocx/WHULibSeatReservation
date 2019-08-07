@@ -16,7 +16,7 @@ int main()
         system("pip install pyqt5 requests");
         system("pause");
     }
-    elseif(commandline=="bash")
+    else if(commandline=="bash")
     {
         system("pip3 install pyqt5 requests");
         system("read -n 1 -p \"Press enter to continue...\"");
