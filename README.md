@@ -33,4 +33,30 @@ Windows推荐下载的Python 3版本：[下载连接](https://www.anaconda.com/d
 然后打开终端，切换到程序所在目录，输入```python3 main_win.py```即可（也可以写一个```.command```文件简化操作）
 
 ### >Linux平台
-```pass```
+Linux用户不需要下载```Setup.exe```和```武汉大学图书馆自习助手.exe```文件。
+
+需要安装gcc, Python3和pip3，并加入环境变量。
+
+将'''Setup.cpp'''和'''run.cpp'''中
+
+'''string commandline="cmd";'''
+
+修改为'''string commandline="bash";'''
+
+在当前目录下在命令行运行一下指令编译cpp文件：
+'''
+g++ Setup.cpp -o Setup
+g++ run.cpp -o WHULibSR
+'''
+
+当前目录下会生成'''Setup'''和'''WHULibSR'''两个可执行文件。
+
+赋予可执行权限：
+'''
+chmod +x Setup
+chmod +x WHULibSR
+'''
+
+运行'''./Setup'''将自动安装PyQt5和requests依赖。
+
+运行'''./WHULibSR'''即可正常启动。
