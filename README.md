@@ -50,7 +50,7 @@ string commandline="bash";
 ```
 
 在当前目录下在命令行运行一下指令编译cpp文件：
-```
+```bash
 g++ Setup.cpp -o Setup
 g++ run.cpp -o WHULibSR
 ```
@@ -58,7 +58,7 @@ g++ run.cpp -o WHULibSR
 当前目录下会生成'''Setup'''和'''WHULibSR'''两个可执行文件。
 
 赋予可执行权限：
-```
+```bash
 chmod +x Setup
 chmod +x WHULibSR
 ```
