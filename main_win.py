@@ -12,6 +12,18 @@ from ctypes import windll
 import logo_rc
 
 
+def main():
+    whnd = windll.kernel32.GetConsoleWindow()
+    if whnd != 0:
+        windll.user32.ShowWindow(whnd, 0)
+        windll.kernel32.CloseHandle(whnd)
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = MainWin(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())
+
+
 def load_config(decode_password=True):
     """
     加载配置文件
@@ -511,8 +523,7 @@ class MainWin:
                 if not app_res.cancel_seat(res_id):  # 取消预约
                     raise utils.ReserveStateError("取消预约失败")
             else:
-                assert app_res.stop_using()  # 释放座位
-                if not app_res.cancel_seat(res_id):  # 取消预约
+                if not app_res.stop_using():  # 释放座位
                     raise utils.ReserveStateError("取消预约失败")
             sleep(1)
             web_res.res_seat(seat_id)  # 尝试通过网页端重新预约
@@ -528,20 +539,27 @@ class MainWin:
             count = 1
             is_success = 0
             web_res = self.start_web_res()  # 登陆web端
-            sleep(utils.get_rest_time())  # 判断是否进入等待模式
+            time_rest = utils.get_rest_time()
+            if time_rest:
+                for i_sec in range(time_rest):
+                    if not self.run_flag:
+                        break
+                    sleep(1)  # 判断是否进入等待模式
+            print("\r", end="")
             while not is_success and self.run_flag:
                 seat_list = web_res.free_search()
-                while not seat_list:
+                while not seat_list and self.run_flag:
                     print("【第{0}次搜索】目前没有空闲位置".format(count))
                     sleep(utils.interval_time + randint(0, 2))
                     seat_list = web_res.free_search()
                     count += 1
 
-                print("【第{0}次搜索】发现空闲位置，尝试预约".format(count))
-                sleep(1)
-                seat = choice(seat_list)
-                is_success = web_res.res_seat(seat)
-                count += 1
+                if self.run_flag:
+                    print("【第{0}次搜索】发现空闲位置，尝试预约".format(count))
+                    sleep(1)
+                    seat = choice(seat_list)
+                    is_success = web_res.res_seat(seat)
+                    count += 1
         finally:
             if self.run_flag:
                 self.click_reserve_seat_button()
@@ -600,12 +618,4 @@ class XStream(QtCore.QObject):
 
 
 if __name__ == "__main__":
-    whnd = windll.kernel32.GetConsoleWindow()
-    if whnd != 0:
-        windll.user32.ShowWindow(whnd, 0)
-        windll.kernel32.CloseHandle(whnd)
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = MainWin(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
+    main()

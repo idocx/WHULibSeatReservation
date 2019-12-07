@@ -1,7 +1,10 @@
-#############################################################
-#                        作者：我.doc
-# Github地址：https://github.com/idocx/WHULibSeatReservation
-#############################################################
+# -*- coding: utf-8 -*-
+
+# captcha_win implementation generated from reading ui file 'captcha.ui'
+#
+# Created by: PyQt5 UI code generator 5.11.3
+#
+# WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import utils

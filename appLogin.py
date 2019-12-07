@@ -24,7 +24,7 @@ class AppRes(Session):
         super(AppRes, self).__init__()
         self.headers.update(self.default_header)
         self.config = config
-        self.reserve_date = utils.get_reserve_date()  # reserve_date是一个字符串类型
+        self.reserve_date, self.is_tomorrow = utils.get_reserve_date()  # reserve_date是一个字符串类型
         self.login()
 
     def req_with_json(self, url, data=None):
@@ -91,6 +91,8 @@ class AppRes(Session):
         :return: 预约的请求号
         """
         url = "rest/v2/freeBook"
+        if not utils.is_reasonable_time(start_time, end_time, self.is_tomorrow):
+            raise utils.TimeSetError("时间设置不正确，请重新设置")
         data_to_send = {
             "t": 1,
             "startTime": start_time,

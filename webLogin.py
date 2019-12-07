@@ -1,6 +1,6 @@
 #############################################################
-#                        作者：我.doc
-# Github地址：https://github.com/idocx/WHULibSeatReservation
+#                        作者：我.doc                        #
+# Github地址：https://github.com/idocx/WHULibSeatReservation #
 #############################################################
 
 from requests import Session
@@ -52,7 +52,7 @@ class WebRes(Session):
         self.synchronizer_token = self.get_synchronizer_token()  # 获取token，这个在登陆的时候要用
         self.authid = self.check_captcha()  # 识别正确验证码后，系统会返回一个token，表明你已经验证成功了
         self.login()
-        self.reserve_date = utils.get_reserve_date()
+        self.reserve_date, self.is_tomorrow = utils.get_reserve_date()
 
     def get_home_page(self):
         """
@@ -75,7 +75,7 @@ class WebRes(Session):
         try:
             token = re.search(r'(?<=name="SYNCHRONIZER_TOKEN" value=").+?(?=")', response).group()
         except AttributeError:
-            raise utils.LoginError("无法访问网页，请检查当前网络状态；或者图书馆网站正在维护")
+            raise utils.LoginError("无法访问网页，请检查当前网络状态；或者图书馆网站正在维护（每天00 : 00 ~ 01 : 00）")
 
         return token
 
@@ -153,7 +153,7 @@ class WebRes(Session):
         :return: 返回空闲的座位的id list
         """
         url = self.orgin_host + "freeBook/ajaxSearch"
-        if not utils.is_reasonable_time(self.config["startmin"], self.config["endmin"]):
+        if not utils.is_reasonable_time(self.config["startmin"], self.config["endmin"], self.is_tomorrow):
             raise utils.TimeSetError("时间设置不正确，请重新设置")
         data_to_send = {
             "onDate": self.reserve_date,
