@@ -36,45 +36,8 @@ Windows推荐下载的Python 3版本：[下载连接](https://www.anaconda.com/d
 
 ### >Linux平台
 
-#### 方式一：编译可执行程序
 
-需要安装gcc, Python 3和pip3，并加入环境变量。（安装方法Linux用户应该很熟悉）
-
-国内pip的使用可能需要换源。（换源方法Linux用户应该很熟悉）
-
-将```Setup.cpp```和```run.cpp```中
-
-```C++
-string commandline="cmd";
-```
-
-修改为
-
-```C++
-string commandline="bash";
-```
-
-在当前目录下在终端运行一下指令编译cpp文件：
-```bash
-g++ Setup.cpp -o Setup
-g++ run.cpp -o WHULibSR
-```
-
-当前目录下会生成```Setup```和```WHULibSR```两个可执行文件。
-
-给两个可执行文件赋予可执行权限：
-```bash
-chmod +x Setup
-chmod +x WHULibSR
-```
-
-运行```./Setup```将自动安装PyQt5和requests依赖。
-
-运行```./WHULibSR```即可正常启动。
-
-可以将该目录加入环境变量，这样只需要在命令行运行```WHULibSR```就可以启动。
-
-#### 方式二：通过源码进行使用（推荐）
+#### 目前只能通过源码进行使用
 需要安装Python 3和pip3，并加入环境变量。（安装方法Linux用户应该很熟悉）
 
 国内pip的使用可能需要换源。（换源方法Linux用户应该很熟悉）
