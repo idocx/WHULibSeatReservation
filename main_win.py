@@ -17,6 +17,7 @@ def main():
     if whnd != 0:
         windll.user32.ShowWindow(whnd, 0)
         windll.kernel32.CloseHandle(whnd)
+    QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = MainWin(MainWindow)
