@@ -84,7 +84,7 @@ class WebRes(Session):
         获取并且调用打开验证码的窗口，供用户识别
         :return:
         """
-        url = self.orgin_host + "captcha"
+        url = self.orgin_host + "cap/captcha"
         response = self.get(url).text
         response = json.loads(response)
         str_data = response["data"]
@@ -98,7 +98,7 @@ class WebRes(Session):
         :param token: 请求图片的token
         :return: 经过base64加密的坐标信息
         """
-        captcha_url = self.orgin_host + "captchaImg?token={}&r={}".format(token, random.random())
+        captcha_url = self.orgin_host + "cap/captchaImg?token={}&r={}".format(token, random.random())
         img = self.get(captcha_url).content
         self.cap_win = captcha_win.CaptchaWin(cap_text, img, parent=self.parent)
         self.cap_win.exec()
@@ -114,7 +114,7 @@ class WebRes(Session):
         :return: 验证后的token
         """
         pos_data, token = self.get_captcha()
-        url = self.orgin_host + "checkCaptcha?a={}%3D&token={}&userId=HTTP/1.1".format(pos_data.decode('utf-8'), token)
+        url = self.orgin_host + "cap/checkCaptcha?a={}%3D&token={}&userId=HTTP/1.1".format(pos_data.decode('utf-8'), token)
         response = self.get(url).text
         response = json.loads(response)
         if response["status"] != "OK":
