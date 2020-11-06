@@ -21,6 +21,6 @@ Windows推荐下载的Python 3版本：[下载连接](https://www.anaconda.com/d
 
 国内pip的使用可能需要换源，Windows下pip换源方法：[教程](https://blog.csdn.net/Artprog/article/details/75632723)
 
-运行```Setup.exe```文件，系统将自动安装PyQt5和requests。（需要安装了Python和pip，若按上面链接安装则已经自动安装了pip）
+执行```pip install pyqt5```和```pip install requests```用pip安装PyQt5和requests包
 
-完成安装以后运行```武汉大学图书馆自习助手.exe```即可正常启动。
+执行```python main_win.py```启动脚本
